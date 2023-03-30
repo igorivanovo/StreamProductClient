@@ -8,10 +8,10 @@ public class Main {
         String[] products = {"Хлеб", "Молоко", "Сахар", "Соль", "Нагетсы"};
         int[] prices = {35, 70, 50, 10, 80};
         Basket basket = new Basket(prices, products);
-        File newFile = new File("basket.txt");
-        newFile.createNewFile();
+        File newFile = new File("basket.bin");
+        // newFile.createNewFile();
         if (newFile.length() > 0) {
-            basket = Basket.loadFromTxtFile("basket.txt");
+            basket = Basket.loadFromBinFile(newFile);
             basket.printCart();
         }
         Scanner scanner = new Scanner(System.in);
@@ -47,7 +47,7 @@ public class Main {
                 continue;
             }
             basket.addToCart(productNumber, productCount);
-            basket.saveTxt(newFile);
+            basket.saveBin(newFile);
             basket.printCart();
         }
     }

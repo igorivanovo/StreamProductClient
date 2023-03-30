@@ -1,9 +1,10 @@
 import java.io.*;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Basket {
+public class Basket implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected int[] prices;
     protected String[] products;
     protected int sumProducts;
@@ -13,9 +14,6 @@ public class Basket {
         this.prices = prices;
         this.products = products;
         map = new HashMap<>();
-    }
-
-    public Basket() {
     }
 
     protected void addToCart(int productNum, int amount) {//добавление в корзину
@@ -61,50 +59,29 @@ public class Basket {
 
     }
 
-    protected void saveTxt(File textFile) throws IOException {
-        try (PrintWriter out = new PrintWriter(textFile);) {
-            for (int price : prices) {
-                out.print(price + " ");
-            }
-            out.println();
-            for (String product : products) {
-                out.print(product + " ");
-            }
-            out.println();
-            for (Map.Entry<String, Integer> kv : map.entrySet()) {
-                String text = kv.getKey() + " " + kv.getValue();
-                out.write(text);
-                out.write("\n");
-                out.flush();
-            }
-        }
-    }
-
-    protected static Basket loadFromTxtFile(String textFile) {
-        String s;
-        Basket basket = new Basket();
-        basket.map = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader("basket.txt"))) {
-            //чтение построчно
-            String priceStr = br.readLine();
-            String productStr = br.readLine();
-            basket.prices = Arrays.stream(priceStr.split(" "))
-                    .map(Integer::parseInt)
-                    .mapToInt(Integer::intValue)
-                    .toArray();
-            basket.products = productStr.split(" ");
-            while ((s = br.readLine()) != null) {
-                String[] parts = s.split(" ");
-                String product = parts[0];
-                int count = Integer.parseInt(parts[1]);
-                basket.map.put(product, count);
-
-            }
-
-        } catch (IOException ex) {
+    protected void saveBin(File file) {
+        try (FileOutputStream fos = new FileOutputStream(file);
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            // запишем экземпляр класса в файл
+            oos.writeObject(this);
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
+    }//для сохранения в файл в бинарном формат
+
+    protected static Basket loadFromBinFile(File file) {
+        Basket basket = null;
+
+// откроем входной поток для чтения файла
+        try (FileInputStream fis = new FileInputStream(file);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            // десериализуем объект и скастим его в класс
+            basket = (Basket) ois.readObject();
+
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+
         return basket;
     }
-
 }
