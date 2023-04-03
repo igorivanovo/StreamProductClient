@@ -6,7 +6,7 @@ import java.util.Map;
 public class Basket {
     protected int[] prices;
     protected String[] products;
-    protected int sumProducts;
+    protected static int sumProducts;
     protected Map<String, Integer> map;
 
     protected Basket(int[] prices, String[] products) {
@@ -36,6 +36,7 @@ public class Basket {
     }
 
     protected void printCart() {//вывод корзины
+
         String[] output = new String[products.length];
         System.out.println("  <<<<<  Ваша корзина:  >>>>>");
         for (String k : map.keySet()) {
@@ -61,8 +62,8 @@ public class Basket {
 
     }
 
-    protected void saveTxt(File textFile) throws IOException {
-        try (PrintWriter out = new PrintWriter(textFile);) {
+    protected void saveTxt(File saveFile) throws IOException {
+        try (PrintWriter out = new PrintWriter(saveFile);) {
             for (int price : prices) {
                 out.print(price + " ");
             }
@@ -80,11 +81,11 @@ public class Basket {
         }
     }
 
-    protected static Basket loadFromTxtFile(String textFile) {
+    protected static Basket loadFromTxtFile(File loadFile) {
         String s;
         Basket basket = new Basket();
         basket.map = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader("basket.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(loadFile))) {
             //чтение построчно
             String priceStr = br.readLine();
             String productStr = br.readLine();

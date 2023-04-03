@@ -6,11 +6,12 @@ import java.io.IOException;
 
 public class ClientLog {
     protected Basket basket;
+    private String log = "";
 
     public ClientLog(int[] prices, String[] products) {
         basket = new Basket(prices, products);
     }
-    private String log = "";
+
     public Basket getBasket() {
         return basket;
     }
@@ -20,18 +21,18 @@ public class ClientLog {
     }
 
     public void log(int productNum, int amount) {  // сохранение операций В журнал
-        productNum ++;
+        productNum++;
         log += String.format("%d,%d%n", productNum, amount);
 
     }
 
-    protected void exportAsCSV(File csvFile){     //  сохранение всего журнала действий в формате csv
-        if (!csvFile.exists()) {
+    protected void exportAsCSV(File logFile) {     //  сохранение всего журнала действий в формате csv
+        if (!logFile.exists()) {
             log = "productNum,amount\n" + log;
         }
-        try(FileWriter writer = new FileWriter(csvFile,true)){
+        try (FileWriter writer = new FileWriter(logFile, true)) {
             writer.write(log);
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
