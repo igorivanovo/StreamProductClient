@@ -1,31 +1,25 @@
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class Main {
-    static String[] products = {"Хлеб", "Молоко", "Сахар", "Соль", "Нагетсы"};
-    static int[] prices = {35, 70, 50, 10, 80};
+    private static String[] products = {"Хлеб", "Молоко", "Сахар", "Соль", "Нагетсы"};
+    private static int[] prices = {35, 70, 50, 10, 80};
 
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
 
         XMLSettingsReader settingsReader = new XMLSettingsReader(new File("shop.xml"));
-        File loadFile = new File(settingsReader.loadFile);
-        File saveFile = new File(settingsReader.saveFile);
-        File logFile = new File(settingsReader.logFile);
-
-        ClientLog clientLog = createClientLog(loadFile, settingsReader.isLoad, settingsReader.loadFormat);
-        System.out.println("загрузка : " + settingsReader.isLoad+ "  из : " + settingsReader.loadFile);
-        System.out.println("запись : " + settingsReader.isSave+  "  в : "+ settingsReader.saveFile);
+        File loadFile = new File(settingsReader.getLoadFile());
+        File saveFile = new File(settingsReader.getSaveFile());
+        File logFile = new File(settingsReader.getLogFile());
+        ClientLog clientLog0 = new ClientLog(prices, products);
+        ClientLog clientLog = clientLog0.createClientLog(loadFile, settingsReader.isLoad(), settingsReader.getLoadFormat());
+        System.out.println("загрузка : " + settingsReader.isLoad() + "  из : " + settingsReader.getLoadFile());
+        System.out.println("запись : " + settingsReader.isSave() + "  в : " + settingsReader.getSaveFile());
         clientLog.getBasket().printCart();
         logFile.delete();
         Scanner scanner = new Scanner(System.in);
@@ -38,7 +32,7 @@ public class Main {
             System.out.println("Выберите номер товар и количество + или - или введите `end`");
             String input = scanner.nextLine();
             if ("end".equals(input)) {
-                if (settingsReader.isLog) {
+                if (settingsReader.isLog()) {
                     clientLog.exportAsCSV(logFile);
                     System.out.println(logFile);
                 }
@@ -65,57 +59,18 @@ public class Main {
             }
 
             clientLog.getBasket().addToCart(productNumber, productCount);
-            if (settingsReader.isLog) {
+            if (settingsReader.isLog()) {
                 clientLog.log(productNumber, productCount);
             }
-            if (settingsReader.isSave) {
-                switch (settingsReader.saveFormat) {
+            if (settingsReader.isSave()) {
+                switch (settingsReader.getSaveFormat()) {
                     case "txt" -> clientLog.getBasket().saveTxt(saveFile);
                     case "json" -> {
-                        Basket basket = clientLog.getBasket();
-                        GsonBuilder builder = new GsonBuilder();
-                        Gson gson = builder.create();
-                        try (FileWriter file = new FileWriter(saveFile)) {
-                            file.write(gson.toJson(basket));
-                            file.flush();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        clientLog.getBasket().saveJSON(saveFile);
                     }
                 }
             }
             clientLog.getBasket().printCart();
         }
-    }
-
-    private static ClientLog createClientLog(File loadFile, boolean isLoad, String loadFormat) {
-        ClientLog clientLog = new ClientLog(prices, products);
-        if (isLoad && loadFile.exists()) {
-            switch (loadFormat) {
-                case "json" -> clientLog = loadFromJCONFile(loadFile);
-                case "txt" -> clientLog.setBasket(Basket.loadFromTxtFile(loadFile));
-            }
-            return clientLog;
-        } else {
-        }
-        return clientLog;
-    }
-
-    private static ClientLog loadFromJCONFile(File loadFile) {
-        ClientLog clientLog = new ClientLog(prices, products);
-        Path path = Paths.get(String.valueOf(loadFile));
-        String contents = null;
-        try {
-            contents = Files.readString(path, StandardCharsets.UTF_8);
-            GsonBuilder builder = new GsonBuilder();
-            Gson gson = builder.create();
-            Basket basket = gson.fromJson(contents, Basket.class);
-            clientLog.setBasket(basket);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return clientLog;
-
     }
 }

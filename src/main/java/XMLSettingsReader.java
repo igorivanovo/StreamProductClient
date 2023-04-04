@@ -11,16 +11,48 @@ import java.io.IOException;
 import static java.lang.Boolean.parseBoolean;
 
 public class XMLSettingsReader {
-    final boolean isLoad;
-    final String loadFile;
-    final String loadFormat;
+    private boolean isLoad;
+    private String loadFile;
+    private String loadFormat;
 
-    final boolean isSave;
-    final String saveFile;
-    final String saveFormat;
+    private boolean isSave;
+    private String saveFile;
+    private String saveFormat;
 
-    final boolean isLog;
-    final String logFile;
+    private boolean isLog;
+    private String logFile;
+
+    public boolean isLoad() {
+        return isLoad;
+    }
+
+    public String getLoadFile() {
+        return loadFile;
+    }
+
+    public String getLoadFormat() {
+        return loadFormat;
+    }
+
+    public boolean isSave() {
+        return isSave;
+    }
+
+    public String getSaveFile() {
+        return saveFile;
+    }
+
+    public String getSaveFormat() {
+        return saveFormat;
+    }
+
+    public boolean isLog() {
+        return isLog;
+    }
+
+    public String getLogFile() {
+        return logFile;
+    }
 
     public XMLSettingsReader(File xmFile) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

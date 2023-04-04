@@ -1,13 +1,20 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Basket {
-    protected int[] prices;
-    protected String[] products;
-    protected static int sumProducts;
-    protected Map<String, Integer> map;
+    private int[] prices;
+    private String[] products;
+    private static int sumProducts;
+    private Map<String, Integer> map;
 
     protected Basket(int[] prices, String[] products) {
         this.prices = prices;
@@ -15,8 +22,25 @@ public class Basket {
         map = new HashMap<>();
     }
 
+    public static int getSumProducts() {
+        return sumProducts;
+    }
+
+    public int[] getPrices() {
+        return prices;
+    }
+
+    public String[] getProducts() {
+        return products;
+    }
+
+    public void setMap(Map<String, Integer> map) {
+        this.map = map;
+    }
+
     public Basket() {
     }
+
 
     protected void addToCart(int productNum, int amount) {//добавление в корзину
         String k = products[productNum];
@@ -81,6 +105,17 @@ public class Basket {
         }
     }
 
+    protected void saveJSON(File saveFile) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        try (FileWriter file = new FileWriter(saveFile)) {
+            file.write(gson.toJson(this));
+            file.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     protected static Basket loadFromTxtFile(File loadFile) {
         String s;
         Basket basket = new Basket();
@@ -99,11 +134,24 @@ public class Basket {
                 String product = parts[0];
                 int count = Integer.parseInt(parts[1]);
                 basket.map.put(product, count);
-
             }
-
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
+        }
+        return basket;
+    }
+
+    protected static Basket loadFromJCONFile(File loadFile) {
+        Basket basket = null;
+        Path path = Paths.get(String.valueOf(loadFile));
+        String contents = null;
+        try {
+            contents = Files.readString(path, StandardCharsets.UTF_8);
+            GsonBuilder builder = new GsonBuilder();
+            Gson gson = builder.create();
+            basket = gson.fromJson(contents, Basket.class);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return basket;
     }
