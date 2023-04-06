@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Basket {
-    protected int[] prices;
-    protected String[] products;
+    protected static String basket1 = "";
+    protected static int[] prices;
+    protected static String[] products;
     protected int sumProducts;
-    protected Map<String, Integer> map;
+    protected static Map<String, Integer> map;
 
     protected Basket(int[] prices, String[] products) {
         this.prices = prices;
@@ -16,6 +17,26 @@ public class Basket {
     }
 
     public Basket() {
+    }
+
+    public Map<String, Integer> getMap() {
+        return map;
+    }
+
+    public int[] getPrices() {
+        return prices;
+    }
+
+    public String[] getProducts() {
+        return products;
+    }
+
+    public static String getBasket1() {
+        return basket1;
+    }
+
+    public static void setMap(Map<String, Integer> map) {
+        Basket.map = map;
     }
 
     protected void addToCart(int productNum, int amount) {//добавление в корзину
@@ -61,30 +82,38 @@ public class Basket {
 
     }
 
-    protected void saveTxt(File textFile) throws IOException {
+    protected static void saveTxt(File textFile) throws IOException {
+
+        StringBuilder baskett = new StringBuilder();
         try (PrintWriter out = new PrintWriter(textFile);) {
             for (int price : prices) {
+                baskett.append(price + " ");
                 out.print(price + " ");
+
+
             }
             out.println();
             for (String product : products) {
                 out.print(product + " ");
+                baskett.append(product + " ");
             }
             out.println();
             for (Map.Entry<String, Integer> kv : map.entrySet()) {
                 String text = kv.getKey() + " " + kv.getValue();
+                baskett.append(text + " ");
                 out.write(text);
                 out.write("\n");
                 out.flush();
             }
+            basket1 = baskett.toString();
         }
     }
 
-    protected static Basket loadFromTxtFile(String textFile) {
+    protected static Basket loadFromTxtFile(File textFile) {
         String s;
         Basket basket = new Basket();
         basket.map = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader("basket.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(textFile))) {
             //чтение построчно
             String priceStr = br.readLine();
             String productStr = br.readLine();
@@ -102,7 +131,7 @@ public class Basket {
             }
 
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            throw new RuntimeException(ex);
         }
         return basket;
     }
